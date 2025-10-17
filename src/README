@@ -1,0 +1,44 @@
+NestJS POC Starter with JWT Auth + Role Guard (plus tiny Express variant)
+
+A minimal, production-leaning NestJS starter you can paste into a new repo to demonstrate Node/TS API readiness coming from Go/REST. Includes:
+
+Postgres via Prisma
+
+JWT auth (register/login)
+
+Role-based authorization (@Roles('ADMIN'))
+
+Tasks CRUD sample
+
+Validation + DI + clean module boundaries
+
+# stop the running dev server (if running) and restart
+# (how you stop depends on how you started it; then:)
+npm run dev
+
+# with jq
+echo $TOKEN | cut -d '.' -f2 | base64 --decode | jq .
+
+# fallback on macOS (base64 -D) vs Linux (base64 -d)
+echo $TOKEN | cut -d '.' -f2 | base64 -D | jq .   # macOS
+echo $TOKEN | cut -d '.' -f2 | base64 -d | jq .   # Linux
+
+curl -i -X POST http://localhost:3000/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"email":"me@example.com","password":"secret123"}'
+
+# with jq
+TOKEN=$(curl -s -X POST http://localhost:3000/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"me@example.com","password":"secret123"}' | jq -r .access_token)
+echo $TOKEN
+
+# crude extraction (assumes JSON on one line)
+
+curl -i http://localhost:3000/tasks \
+  -H "Authorization: Bearer $TOKEN"
+
+curl -i -X POST http://localhost:3000/tasks \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"title":"Buy milk"}'
